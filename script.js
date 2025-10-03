@@ -39,14 +39,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  function startGame() {
+ function startGame() {
   score = 0;
   timeLeft = 300;
   scoreEl.textContent = score;
   timerEl.textContent = timeLeft;
 
-  // limpiar slots
-  document.querySelectorAll(".slot").forEach((slot, i) => {
+  // limpiar slots y reiniciar numeración
+  const slots = document.querySelectorAll(".slot");
+  slots.forEach((slot, i) => {
     slot.innerHTML = `<span class="slot-number">${i+1}</span>`;
   });
 
@@ -67,20 +68,23 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => card.style.display = "none", 0);
     });
     card.addEventListener("dragend", () => {
-      draggedCard.style.display = "block";
-      draggedCard = null;
+      if (draggedCard) {
+        draggedCard.style.display = "block";
+        draggedCard = null;
+      }
     });
 
-    const slot = document.querySelectorAll(".slot")[idx];
-    slot.appendChild(card);
+    // Aquí la diferencia clave: en lugar de board.appendChild,
+    // lo metemos directamente en el slot correspondiente
+    slots[idx].appendChild(card);
   });
 
-  // slots
-  document.querySelectorAll(".slot").forEach(slot => {
+  // habilitar drop en slots
+  slots.forEach((slot, i) => {
     slot.addEventListener("dragover", e => e.preventDefault());
     slot.addEventListener("drop", () => {
       if (draggedCard) {
-        slot.innerHTML = `<span class="slot-number">${parseInt(slot.dataset.slot)+1}</span>`;
+        slot.innerHTML = `<span class="slot-number">${i+1}</span>`;
         slot.appendChild(draggedCard);
       }
     });
