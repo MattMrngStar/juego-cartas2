@@ -100,8 +100,19 @@ main { width: 100%; max-width: 1000px; padding: 1rem; }
   cursor: grab;
   user-select: none;
   -webkit-user-drag: none;
-  touch-action: none; /* ¡importante para móvil: evita scroll durante pointermove */
+  touch-action: none; /* evita scrolling durante drag en mobile */
   display: block;
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+
+/* animación "pop" al soltar */
+.card.drop-pop {
+  animation: drop-pop 220ms ease forwards;
+}
+@keyframes drop-pop {
+  0%   { transform: scale(1.06); }
+  40%  { transform: scale(1.02); }
+  100% { transform: scale(1); }
 }
 
 /* CLON que sigue el dedo (creado dinámicamente) */
@@ -114,18 +125,12 @@ main { width: 100%; max-width: 1000px; padding: 1rem; }
   will-change: transform;
   border-radius: 8px;
   box-shadow: 0 18px 46px rgba(10,20,40,0.28);
-  width: var(--card-width);
-  height: var(--card-height);
   background-size: cover;
   background-position: center;
+  transition: transform .12s ease; /* suaviza la animación del clon */
 }
 
 /* responsive */
-@media (max-width:900px){
-  #board{ grid-template-columns: repeat(4, 1fr) }
-}
-@media (max-width:520px){
-  #board{ grid-template-columns: repeat(2, 1fr) }
-  .demo-card{ width:60px }
-}
+@media (max-width:900px){ #board{ grid-template-columns: repeat(4, 1fr) } }
+@media (max-width:520px){ #board{ grid-template-columns: repeat(2, 1fr) } .demo-card{ width:60px } }
 
