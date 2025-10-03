@@ -1,0 +1,63 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background: #f5f7fa;
+  margin: 0;
+  padding: 20px;
+}
+
+h1 {
+  margin-bottom: 20px;
+}
+
+#game-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+#cards-container {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 90%;
+}
+
+.card {
+  width: 120px;
+  height: 180px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 8px;
+  cursor: grab;
+  transition: transform 0.2s;
+}
+
+.card.dragging {
+  opacity: 0.5;
+  transform: scale(1.1);
+}
+
+#controls {
+  margin: 15px 0;
+}
+
+button {
+  padding: 10px 15px;
+  margin: 0 5px;
+  border: none;
+  border-radius: 6px;
+  background: #007bff;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background: #0056b3;
+}
+
+#info {
+  margin-top: 15px;
+}
