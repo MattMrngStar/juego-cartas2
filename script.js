@@ -101,98 +101,105 @@ document.addEventListener("DOMContentLoaded", () => {
     rafId = requestAnimationFrame(updateDragClone);
   }
 
-  function onPointerMove(e) {
-    if (!dragging) return;
-    e.preventDefault();
+ function onPointerDown(e) {
+  if (e.button && e.button !== 0) return;
 
-    // Actualizamos la posición destino del clon
-    targetX = e.clientX - offsetX;
-    targetY = e.clientY - offsetY;
+  draggingCard = e.currentTarget;
+  originSlot = draggingCard.parentElement;
 
-    lastClientX = e.clientX;
-    lastClientY = e.clientY;
+  const rect = draggingCard.getBoundingClientRect();
+
+  // Diferencia exacta entre el dedo y la esquina de la carta
+  offsetX = e.clientX - rect.left;
+  offsetY = e.clientY - rect.top;
+
+  // Guardamos la posición actual del dedo
+  lastClientX = e.clientX;
+  lastClientY = e.clientY;
+  targetX = e.clientX - offsetX;
+  targetY = e.clientY - offsetY;
+
+  // Clon visual
+  dragClone = document.createElement("div");
+  dragClone.className = "dragging-clone";
+  dragClone.style.width = rect.width + "px";
+  dragClone.style.height = rect.height + "px";
+  dragClone.style.backgroundImage = `url(${draggingCard.src})`;
+  document.body.appendChild(dragClone);
+
+  draggingCard.style.visibility = "hidden";
+
+  dragging = true;
+  try { draggingCard.setPointerCapture(e.pointerId); } catch {}
+  document.addEventListener("pointermove", onPointerMove, { passive: false });
+  document.addEventListener("pointerup", onPointerUp, { once: true });
+
+  rafId = requestAnimationFrame(updateDragClone);
+}
+
+function onPointerMove(e) {
+  if (!dragging) return;
+  e.preventDefault();
+
+  // Posición de destino del clon
+  targetX = e.clientX - offsetX;
+  targetY = e.clientY - offsetY;
+
+  lastClientX = e.clientX;
+  lastClientY = e.clientY;
+}
+
+function updateDragClone() {
+  if (!dragClone) return;
+
+  // Rotación según el movimiento horizontal
+  const rot = Math.max(-14, Math.min(14, (lastClientX - (targetX + offsetX)) * 0.12));
+
+  dragClone.style.transform = `translate3d(${targetX}px, ${targetY}px, 0) scale(1.06) rotate(${rot}deg)`;
+
+  // Resaltar slot bajo el puntero
+  const elem = document.elementFromPoint(lastClientX, lastClientY);
+  const slotUnder = elem ? elem.closest(".slot") : null;
+  document.querySelectorAll(".slot").forEach(s => s.classList.toggle("over", s === slotUnder));
+
+  if (dragging) rafId = requestAnimationFrame(updateDragClone);
+}
+
+function onPointerUp(e) {
+  dragging = false;
+  cancelAnimationFrame(rafId);
+  document.removeEventListener("pointermove", onPointerMove);
+
+  // Detectar slot bajo el dedo
+  let targetSlot = document.elementFromPoint(e.clientX, e.clientY)?.closest(".slot");
+  if (!targetSlot) targetSlot = nearestSlotToPoint(e.clientX, e.clientY);
+  if (!targetSlot) targetSlot = originSlot;
+
+  // Swap seguro
+  const existing = targetSlot.querySelector(".card");
+  if (existing && targetSlot !== originSlot) {
+    originSlot.replaceChild(existing, draggingCard);
+    targetSlot.appendChild(draggingCard);
+  } else {
+    targetSlot.appendChild(draggingCard);
   }
 
-  function updateDragClone() {
-    if (!dragClone) return;
+  // Animación de "pop" al soltar
+  requestAnimationFrame(() => {
+    draggingCard.classList.add("drop-pop");
+    setTimeout(() => draggingCard?.classList.remove("drop-pop"), 250);
+  });
 
-    // Calculamos rotación suave según movimiento horizontal
-    const dx = (lastClientX - (targetX + offsetX)) || 0;
-    const rot = Math.max(-14, Math.min(14, dx * 0.12));
+  // Limpieza
+  document.querySelectorAll(".slot").forEach(s => s.classList.remove("over"));
+  dragClone?.remove();
+  dragClone = null;
 
-    dragClone.style.transform = `translate3d(${targetX}px, ${targetY}px, 0) scale(1.06) rotate(${rot}deg)`;
-
-    // Detectamos el slot bajo el puntero
-    const elem = document.elementFromPoint(lastClientX, lastClientY);
-    const slotUnder = elem ? elem.closest(".slot") : null;
-    document.querySelectorAll(".slot").forEach(s => s.classList.toggle("over", s === slotUnder));
-
-    if (dragging) rafId = requestAnimationFrame(updateDragClone);
-  }
-
-
-  function nearestSlotToPoint(x, y) {
-    const slots = Array.from(document.querySelectorAll(".slot"));
-    let best = null, bestD = Infinity;
-    slots.forEach(s => {
-      const r = s.getBoundingClientRect();
-      const cx = r.left + r.width / 2;
-      const cy = r.top + r.height / 2;
-      const d = Math.hypot(cx - x, cy - y);
-      if (d < bestD) { bestD = d; best = s; }
-    });
-    return best;
-  }
-
-  // Swap-safe drop using replaceChild to avoid disappearing nodes
-  function onPointerUp(e) {
-    dragging = false;
-    cancelAnimationFrame(rafId);
-    document.removeEventListener("pointermove", onPointerMove);
-
-    const elem = document.elementFromPoint(e.clientX, e.clientY);
-    let targetSlot = elem ? elem.closest(".slot") : null;
-    if (!targetSlot) targetSlot = nearestSlotToPoint(e.clientX, e.clientY);
-    if (!targetSlot) targetSlot = originSlot;
-
-    try {
-      if (targetSlot === originSlot) {
-        // volver al mismo slot (asegurar que slot-number esté)
-        originSlot.appendChild(draggingCard);
-      } else {
-        const existing = targetSlot.querySelector(".card");
-        if (existing) {
-          // swap atómico: reemplaza draggingCard por existing en originSlot (mueve existing)
-          originSlot.replaceChild(existing, draggingCard);
-          // ahora colocar draggingCard en targetSlot
-          targetSlot.appendChild(draggingCard);
-        } else {
-          // target vacío: solo mover
-          targetSlot.appendChild(draggingCard);
-        }
-      }
-
-      // efecto visual "pop" cuando cae la carta
-      requestAnimationFrame(() => {
-        draggingCard.classList.add("drop-pop");
-        setTimeout(() => draggingCard && draggingCard.classList.remove("drop-pop"), 260);
-      });
-    } catch (err) {
-      console.error("Error en swap/drop:", err);
-      // fallback simple: append al target (seguro)
-      if (targetSlot) targetSlot.appendChild(draggingCard);
-    }
-
-    // cleanup
-    document.querySelectorAll(".slot").forEach(s => s.classList.remove("over"));
-    if (dragClone && dragClone.parentNode) dragClone.parentNode.removeChild(dragClone);
-    dragClone = null;
-
-    if (draggingCard) draggingCard.style.visibility = "visible";
-    try { draggingCard.releasePointerCapture && draggingCard.releasePointerCapture(e.pointerId); } catch (err) {}
-    draggingCard = null;
-    originSlot = null;
-  }
+  draggingCard.style.visibility = "visible";
+  try { draggingCard.releasePointerCapture(e.pointerId); } catch {}
+  draggingCard = null;
+  originSlot = null;
+}
 
   /* --- Timer & Game flow --- */
   function startTimer() {
