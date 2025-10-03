@@ -1,46 +1,75 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Juego de Simulacros de Emergencia</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simulacros — Ordena las Cartas</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- Pantalla inicial -->
-  <div id="start-screen">
-    <h1>Simulacros de Emergencia</h1>
-    <p>
-      Ordena correctamente los <strong>8 pasos</strong> de un simulacro de emergencia.  
-      Arrastra las cartas hasta colocarlas en el orden correcto y valida tu respuesta.  
-      ¡Pon a prueba tu memoria y conocimiento!
-    </p>
-    <button id="start-btn">Jugar</button>
-  </div>
+  <!-- AUDIO (misma ruta que en el otro proyecto) -->
+  <audio id="bg-music" src="audio/musica.mp3" loop></audio>
 
-  <!-- Pantalla del juego -->
-  <div id="game-screen" class="hidden">
-    <h1>Ordena los pasos de los simulacros de emergencia</h1>
-    
-    <div id="game-container">
-      <div id="cards-container"></div>
-    </div>
+  <!-- PANTALLA DE INICIO -->
+  <div id="start-screen" class="overlay">
+    <div class="start-inner">
+      <h1>Simulacros de Emergencia</h1>
+      <p>
+        Ordena los <strong>8 pasos</strong> de un simulacro de emergencia colocando las cartas en el orden correcto.
+        Tienes tiempo limitado — ¡sé rápido y preciso!
+      </p>
 
-    <div id="controls">
-      <button id="validate-btn">Validar Orden</button>
-      <button id="reset-btn">Reiniciar</button>
-    </div>
+      <div id="demo-cards" aria-hidden="true">
+        <img class="demo-card" src="Cartas2/CartasPFE-08.png" alt="reverso" style="--delay:0s">
+        <img class="demo-card" src="Cartas2/CartasPFE-08.png" alt="reverso" style="--delay:0.35s">
+        <img class="demo-card" src="Cartas2/CartasPFE-08.png" alt="reverso" style="--delay:0.7s">
+      </div>
 
-    <div id="info">
-      <p><strong>Tiempo:</strong> <span id="timer">0s</span></p>
-      <p><strong>Puntos:</strong> <span id="score">0</span></p>
+      <div class="start-actions">
+        <button id="btn-start">Iniciar Juego</button>
+      </div>
+      <small class="hint">Haz simulacros periódicamente — protege vidas</small>
     </div>
   </div>
 
-  <!-- Música -->
-  <audio id="bg-music" src="musica.mp3" loop></audio>
+  <!-- ÁREA DE JUEGO -->
+  <main id="game-area" class="hidden" role="main" aria-label="Juego de ordenar cartas">
+    <header class="hud">
+      <div>Tiempo: <span id="timer">300</span>s</div>
+      <div>Puntos: <span id="score">0</span></div>
+    </header>
+
+    <!-- TABLERO: 8 slots -->
+    <section id="board" aria-label="Tablero de 8 slots">
+      <div class="slot-container"><span class="slot-number">1</span><div class="slot" data-slot="0"></div></div>
+      <div class="slot-container"><span class="slot-number">2</span><div class="slot" data-slot="1"></div></div>
+      <div class="slot-container"><span class="slot-number">3</span><div class="slot" data-slot="2"></div></div>
+      <div class="slot-container"><span class="slot-number">4</span><div class="slot" data-slot="3"></div></div>
+      <div class="slot-container"><span class="slot-number">5</span><div class="slot" data-slot="4"></div></div>
+      <div class="slot-container"><span class="slot-number">6</span><div class="slot" data-slot="5"></div></div>
+      <div class="slot-container"><span class="slot-number">7</span><div class="slot" data-slot="6"></div></div>
+      <div class="slot-container"><span class="slot-number">8</span><div class="slot" data-slot="7"></div></div>
+    </section>
+
+    <footer class="controls">
+      <button id="btn-check" class="secondary">Validar Orden</button>
+      <button id="btn-restart" class="secondary">Reiniciar</button>
+    </footer>
+  </main>
+
+  <!-- PANTALLA FINAL -->
+  <div id="end-screen" class="overlay hidden">
+    <div class="start-inner">
+      <h2 id="result-title">Resultado</h2>
+      <p>Puntuación: <strong id="final-score">0</strong></p>
+      <div class="start-actions">
+        <button id="btn-play-again">Jugar de nuevo</button>
+      </div>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
 </html>
+
 
