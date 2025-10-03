@@ -3,32 +3,28 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Simulacros — Ordena las Cartas</title>
+  <title>Simulacros de Emergencia</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <!-- AUDIO (misma ruta que en el otro proyecto) -->
-  <audio id="bg-music" src="audio/musica.mp3" loop></audio>
-
   <!-- PANTALLA DE INICIO -->
   <div id="start-screen" class="overlay">
     <div class="start-inner">
-      <h1>Simulacros de Emergencia</h1>
-      <p>
-        Ordena los <strong>8 pasos</strong> de un simulacro de emergencia colocando las cartas en el orden correcto.
-        Tienes tiempo limitado — ¡sé rápido y preciso!
-      </p>
+      <h1>Ordena las Cartas</h1>
+      <p>Arrastra las cartas y colócalas en el orden correcto: 
+        <strong>¿Cuál es el orden de los pasos para realizar un Simulacro de Emergencia?</strong>.
+        Hazlo antes de que se acabe el tiempo. ¡Buena suerte!</p>
 
       <div id="demo-cards" aria-hidden="true">
-        <img class="demo-card" src="Cartas2/CartasPFE-08.png" alt="reverso" style="--delay:0s">
-        <img class="demo-card" src="Cartas2/CartasPFE-08.png" alt="reverso" style="--delay:0.35s">
-        <img class="demo-card" src="Cartas2/CartasPFE-08.png" alt="reverso" style="--delay:0.7s">
+        <img class="demo-card" src="Cartas2/CartasPFE-08.png" style="--delay:0s" alt="reverso">
+        <img class="demo-card" src="Cartas2/CartasPFE-08.png" style="--delay:0.45s" alt="reverso">
+        <img class="demo-card" src="Cartas2/CartasPFE-08.png" style="--delay:0.9s" alt="reverso">
       </div>
 
       <div class="start-actions">
         <button id="btn-start">Iniciar Juego</button>
       </div>
-      <small class="hint">Haz simulacros periódicamente — protege vidas</small>
+      <small class="hint">Protegemos vidas</small>
     </div>
   </div>
 
@@ -41,14 +37,14 @@
 
     <!-- TABLERO: 8 slots -->
     <section id="board" aria-label="Tablero de 8 slots">
-      <div class="slot-container"><span class="slot-number">1</span><div class="slot" data-slot="0"></div></div>
-      <div class="slot-container"><span class="slot-number">2</span><div class="slot" data-slot="1"></div></div>
-      <div class="slot-container"><span class="slot-number">3</span><div class="slot" data-slot="2"></div></div>
-      <div class="slot-container"><span class="slot-number">4</span><div class="slot" data-slot="3"></div></div>
-      <div class="slot-container"><span class="slot-number">5</span><div class="slot" data-slot="4"></div></div>
-      <div class="slot-container"><span class="slot-number">6</span><div class="slot" data-slot="5"></div></div>
-      <div class="slot-container"><span class="slot-number">7</span><div class="slot" data-slot="6"></div></div>
-      <div class="slot-container"><span class="slot-number">8</span><div class="slot" data-slot="7"></div></div>
+      <div class="slot" data-slot="0"><span class="slot-number">1</span></div>
+      <div class="slot" data-slot="1"><span class="slot-number">2</span></div>
+      <div class="slot" data-slot="2"><span class="slot-number">3</span></div>
+      <div class="slot" data-slot="3"><span class="slot-number">4</span></div>
+      <div class="slot" data-slot="4"><span class="slot-number">5</span></div>
+      <div class="slot" data-slot="5"><span class="slot-number">6</span></div>
+      <div class="slot" data-slot="6"><span class="slot-number">7</span></div>
+      <div class="slot" data-slot="7"><span class="slot-number">8</span></div>
     </section>
 
     <footer class="controls">
@@ -67,6 +63,9 @@
       </div>
     </div>
   </div>
+
+  <!-- AUDIO -->
+  <audio id="bg-music" src="kahoot.mp3" loop></audio>
 
   <script src="script.js"></script>
 </body>
