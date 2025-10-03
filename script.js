@@ -37,13 +37,11 @@ document.addEventListener("DOMContentLoaded", () => {
   let dragging = false;
   let rafId = null;
 
-  // util shuffle
   const shuffle = arr => arr.slice().sort(() => Math.random() - 0.5);
 
   // coloca cartas aleatorias dentro de los slots (ya dentro)
   function placeShuffledCards() {
     const slots = Array.from(document.querySelectorAll(".slot"));
-    // reset slots (mantener números)
     slots.forEach((slot, i) => {
       slot.innerHTML = `<span class="slot-number">${i+1}</span>`;
     });
@@ -58,10 +56,8 @@ document.addEventListener("DOMContentLoaded", () => {
       img.src = `${cardFolder}/${imgName}`;
       img.alt = imgName;
       img.dataset.image = imgName;
-      img.style.touchAction = "none"; // important for mobile
-      // pointer-based drag
+      img.style.touchAction = "none"; // importante en móvil
       img.addEventListener("pointerdown", onPointerDown);
-      // prevent native DnD fallback
       img.addEventListener("dragstart", e => e.preventDefault());
       slots[i].appendChild(img);
     });
@@ -69,7 +65,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // pointer handlers
   function onPointerDown(e) {
-    // only primary
     if (e.button && e.button !== 0) return;
 
     draggingCard = e.currentTarget;
@@ -82,33 +77,29 @@ document.addEventListener("DOMContentLoaded", () => {
     targetY = rect.top;
     lastClientX = e.clientX;
 
-    // crear clon visual (fixed) y ajustar imagen de fondo para que quede igual
+    // clon visual
     dragClone = document.createElement("div");
     dragClone.className = "dragging-clone";
     dragClone.style.width = rect.width + "px";
     dragClone.style.height = rect.height + "px";
     dragClone.style.backgroundImage = `url(${draggingCard.src})`;
     dragClone.style.left = (e.clientX - offsetX) + "px";
-    dragClone.style.top = (e.clientY - offsetY) + "px";
+    dragClone.style.top  = (e.clientY - offsetY) + "px";
     document.body.appendChild(dragClone);
 
-    // ocultar original
     draggingCard.style.visibility = "hidden";
 
-    // start listeners
     dragging = true;
-    // capture pointer on original so we get events (some browsers)
-    try { draggingCard.setPointerCapture(e.pointerId); } catch (err) { /* noop */ }
+    try { draggingCard.setPointerCapture && draggingCard.setPointerCapture(e.pointerId); } catch (err) {}
     document.addEventListener("pointermove", onPointerMove, { passive: false });
     document.addEventListener("pointerup", onPointerUp, { once: true });
 
-    // start RAF loop
     rafId = requestAnimationFrame(updateDragClone);
   }
 
   function onPointerMove(e) {
     if (!dragging) return;
-    e.preventDefault(); // prevent scrolling on touch
+    e.preventDefault();
     targetX = e.clientX - offsetX;
     targetY = e.clientY - offsetY;
     lastClientX = e.clientX;
@@ -116,12 +107,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateDragClone() {
     if (!dragClone) return;
-    const dx = (lastClientX - (targetX + offsetX)) || 0; // small rotation input
+    const dx = (lastClientX - (targetX + offsetX)) || 0;
     const rot = Math.max(-14, Math.min(14, dx * 0.12));
-    // position clone at (targetX, targetY)
     dragClone.style.transform = `translate3d(${targetX}px, ${targetY}px, 0) scale(1.06) rotate(${rot}deg)`;
 
-    // highlight slot under pointer
     const elem = document.elementFromPoint(lastClientX, targetY + offsetY);
     const slotUnder = elem ? elem.closest(".slot") : null;
     document.querySelectorAll(".slot").forEach(s => s.classList.toggle("over", s === slotUnder));
@@ -142,30 +131,46 @@ document.addEventListener("DOMContentLoaded", () => {
     return best;
   }
 
+  // Swap-safe drop using replaceChild to avoid disappearing nodes
   function onPointerUp(e) {
     dragging = false;
     cancelAnimationFrame(rafId);
     document.removeEventListener("pointermove", onPointerMove);
 
-    // Find target slot under pointer
     const elem = document.elementFromPoint(e.clientX, e.clientY);
     let targetSlot = elem ? elem.closest(".slot") : null;
     if (!targetSlot) targetSlot = nearestSlotToPoint(e.clientX, e.clientY);
     if (!targetSlot) targetSlot = originSlot;
 
-    // Swap logic
-    if (targetSlot === originSlot) {
-      originSlot.appendChild(draggingCard);
-    } else {
-      const existing = targetSlot.querySelector(".card");
-      if (existing) {
-        // move existing back to originSlot
-        originSlot.appendChild(existing);
+    try {
+      if (targetSlot === originSlot) {
+        // volver al mismo slot (asegurar que slot-number esté)
+        originSlot.appendChild(draggingCard);
+      } else {
+        const existing = targetSlot.querySelector(".card");
+        if (existing) {
+          // swap atómico: reemplaza draggingCard por existing en originSlot (mueve existing)
+          originSlot.replaceChild(existing, draggingCard);
+          // ahora colocar draggingCard en targetSlot
+          targetSlot.appendChild(draggingCard);
+        } else {
+          // target vacío: solo mover
+          targetSlot.appendChild(draggingCard);
+        }
       }
-      targetSlot.appendChild(draggingCard);
+
+      // efecto visual "pop" cuando cae la carta
+      requestAnimationFrame(() => {
+        draggingCard.classList.add("drop-pop");
+        setTimeout(() => draggingCard && draggingCard.classList.remove("drop-pop"), 260);
+      });
+    } catch (err) {
+      console.error("Error en swap/drop:", err);
+      // fallback simple: append al target (seguro)
+      if (targetSlot) targetSlot.appendChild(draggingCard);
     }
 
-    // cleanup visuals
+    // cleanup
     document.querySelectorAll(".slot").forEach(s => s.classList.remove("over"));
     if (dragClone && dragClone.parentNode) dragClone.parentNode.removeChild(dragClone);
     dragClone = null;
@@ -200,12 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (gameArea) gameArea.classList.remove("hidden");
     if (endScreen) endScreen.classList.add("hidden");
     startTimer();
-
-    // try play music
-    if (bgMusic) {
-      bgMusic.volume = 0.28;
-      bgMusic.play().catch(() => console.log("Autoplay blocked"));
-    }
+    if (bgMusic) { bgMusic.volume = 0.28; bgMusic.play().catch(()=>{}); }
   }
 
   function checkOrder() {
@@ -251,7 +251,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // init
-  placeShuffledCards(); // show initial shuffled cards inside slots
+  placeShuffledCards();
   if (gameArea) gameArea.classList.add("hidden");
   if (endScreen) endScreen.classList.add("hidden");
   if (startScreen) startScreen.classList.remove("hidden");
