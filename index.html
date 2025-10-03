@@ -7,22 +7,40 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Ordena los pasos de los simulacros de emergencia</h1>
-  
-  <div id="game-container">
-    <div id="cards-container"></div>
+  <!-- Pantalla inicial -->
+  <div id="start-screen">
+    <h1>Simulacros de Emergencia</h1>
+    <p>
+      Ordena correctamente los <strong>8 pasos</strong> de un simulacro de emergencia.  
+      Arrastra las cartas hasta colocarlas en el orden correcto y valida tu respuesta.  
+      ¡Pon a prueba tu memoria y conocimiento!
+    </p>
+    <button id="start-btn">Jugar</button>
   </div>
 
-  <div id="controls">
-    <button id="validate-btn">Validar Orden</button>
-    <button id="reset-btn">Reiniciar</button>
+  <!-- Pantalla del juego -->
+  <div id="game-screen" class="hidden">
+    <h1>Ordena los pasos de los simulacros de emergencia</h1>
+    
+    <div id="game-container">
+      <div id="cards-container"></div>
+    </div>
+
+    <div id="controls">
+      <button id="validate-btn">Validar Orden</button>
+      <button id="reset-btn">Reiniciar</button>
+    </div>
+
+    <div id="info">
+      <p><strong>Tiempo:</strong> <span id="timer">0s</span></p>
+      <p><strong>Puntos:</strong> <span id="score">0</span></p>
+    </div>
   </div>
 
-  <div id="info">
-    <p><strong>Tiempo:</strong> <span id="timer">0s</span></p>
-    <p><strong>Puntos:</strong> <span id="score">0</span></p>
-  </div>
+  <!-- Música -->
+  <audio id="bg-music" src="musica.mp3" loop></audio>
 
   <script src="script.js"></script>
 </body>
 </html>
+
