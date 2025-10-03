@@ -63,64 +63,73 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // pointer handlers
-  function onPointerDown(e) {
-  if (e.button && e.button !== 0) return;
+    function onPointerDown(e) {
+    if (e.button && e.button !== 0) return;
 
-  draggingCard = e.currentTarget;
-  originSlot = draggingCard.parentElement;
+    draggingCard = e.currentTarget;
+    originSlot = draggingCard.parentElement;
 
-  const rect = draggingCard.getBoundingClientRect();
+    const rect = draggingCard.getBoundingClientRect();
 
-  // Calcular correctamente el offset relativo al pointer
-  offsetX = e.clientX - rect.x;
-  offsetY = e.clientY - rect.y;
+    // Guardamos la diferencia exacta entre puntero y esquina de la carta
+    offsetX = e.clientX - rect.left;
+    offsetY = e.clientY - rect.top;
 
-  targetX = rect.x;
-  targetY = rect.y;
-  lastClientX = e.clientX;
+    // Posición inicial del clon
+    targetX = rect.left;
+    targetY = rect.top;
+    lastClientX = e.clientX;
+    lastClientY = e.clientY;
 
-  // Crear clon visual
-  dragClone = document.createElement("div");
-  dragClone.className = "dragging-clone";
-  dragClone.style.width = rect.width + "px";
-  dragClone.style.height = rect.height + "px";
-  dragClone.style.backgroundImage = `url(${draggingCard.src})`;
-  dragClone.style.left = rect.x + "px";
-  dragClone.style.top = rect.y + "px";
-  document.body.appendChild(dragClone);
+    // Crear clon visual
+    dragClone = document.createElement("div");
+    dragClone.className = "dragging-clone";
+    dragClone.style.width = rect.width + "px";
+    dragClone.style.height = rect.height + "px";
+    dragClone.style.backgroundImage = `url(${draggingCard.src})`;
+    dragClone.style.left = rect.left + "px";
+    dragClone.style.top = rect.top + "px";
+    document.body.appendChild(dragClone);
 
-  draggingCard.style.visibility = "hidden";
+    draggingCard.style.visibility = "hidden";
 
-  dragging = true;
-  try { draggingCard.setPointerCapture && draggingCard.setPointerCapture(e.pointerId); } catch (err) {}
-  document.addEventListener("pointermove", onPointerMove, { passive: false });
-  document.addEventListener("pointerup", onPointerUp, { once: true });
+    dragging = true;
+    try { draggingCard.setPointerCapture && draggingCard.setPointerCapture(e.pointerId); } catch (err) {}
+    document.addEventListener("pointermove", onPointerMove, { passive: false });
+    document.addEventListener("pointerup", onPointerUp, { once: true });
 
-  rafId = requestAnimationFrame(updateDragClone);
-}
-
+    rafId = requestAnimationFrame(updateDragClone);
+  }
 
   function onPointerMove(e) {
     if (!dragging) return;
     e.preventDefault();
+
+    // Actualizamos la posición destino del clon
     targetX = e.clientX - offsetX;
     targetY = e.clientY - offsetY;
+
     lastClientX = e.clientX;
+    lastClientY = e.clientY;
   }
 
   function updateDragClone() {
     if (!dragClone) return;
+
+    // Calculamos rotación suave según movimiento horizontal
     const dx = (lastClientX - (targetX + offsetX)) || 0;
     const rot = Math.max(-14, Math.min(14, dx * 0.12));
+
     dragClone.style.transform = `translate3d(${targetX}px, ${targetY}px, 0) scale(1.06) rotate(${rot}deg)`;
 
-    const elem = document.elementFromPoint(lastClientX, targetY + offsetY);
+    // Detectamos el slot bajo el puntero
+    const elem = document.elementFromPoint(lastClientX, lastClientY);
     const slotUnder = elem ? elem.closest(".slot") : null;
     document.querySelectorAll(".slot").forEach(s => s.classList.toggle("over", s === slotUnder));
 
     if (dragging) rafId = requestAnimationFrame(updateDragClone);
   }
+
 
   function nearestSlotToPoint(x, y) {
     const slots = Array.from(document.querySelectorAll(".slot"));
