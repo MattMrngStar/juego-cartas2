@@ -65,37 +65,41 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // pointer handlers
   function onPointerDown(e) {
-    if (e.button && e.button !== 0) return;
+  if (e.button && e.button !== 0) return;
 
-    draggingCard = e.currentTarget;
-    originSlot = draggingCard.parentElement;
+  draggingCard = e.currentTarget;
+  originSlot = draggingCard.parentElement;
 
-    const rect = draggingCard.getBoundingClientRect();
-    offsetX = e.clientX - rect.left;
-    offsetY = e.clientY - rect.top;
-    targetX = rect.left;
-    targetY = rect.top;
-    lastClientX = e.clientX;
+  const rect = draggingCard.getBoundingClientRect();
 
-    // clon visual
-    dragClone = document.createElement("div");
-    dragClone.className = "dragging-clone";
-    dragClone.style.width = rect.width + "px";
-    dragClone.style.height = rect.height + "px";
-    dragClone.style.backgroundImage = `url(${draggingCard.src})`;
-    dragClone.style.left = (e.clientX - offsetX) + "px";
-    dragClone.style.top  = (e.clientY - offsetY) + "px";
-    document.body.appendChild(dragClone);
+  // Calcular correctamente el offset relativo al pointer
+  offsetX = e.clientX - rect.x;
+  offsetY = e.clientY - rect.y;
 
-    draggingCard.style.visibility = "hidden";
+  targetX = rect.x;
+  targetY = rect.y;
+  lastClientX = e.clientX;
 
-    dragging = true;
-    try { draggingCard.setPointerCapture && draggingCard.setPointerCapture(e.pointerId); } catch (err) {}
-    document.addEventListener("pointermove", onPointerMove, { passive: false });
-    document.addEventListener("pointerup", onPointerUp, { once: true });
+  // Crear clon visual
+  dragClone = document.createElement("div");
+  dragClone.className = "dragging-clone";
+  dragClone.style.width = rect.width + "px";
+  dragClone.style.height = rect.height + "px";
+  dragClone.style.backgroundImage = `url(${draggingCard.src})`;
+  dragClone.style.left = rect.x + "px";
+  dragClone.style.top = rect.y + "px";
+  document.body.appendChild(dragClone);
 
-    rafId = requestAnimationFrame(updateDragClone);
-  }
+  draggingCard.style.visibility = "hidden";
+
+  dragging = true;
+  try { draggingCard.setPointerCapture && draggingCard.setPointerCapture(e.pointerId); } catch (err) {}
+  document.addEventListener("pointermove", onPointerMove, { passive: false });
+  document.addEventListener("pointerup", onPointerUp, { once: true });
+
+  rafId = requestAnimationFrame(updateDragClone);
+}
+
 
   function onPointerMove(e) {
     if (!dragging) return;
