@@ -10,6 +10,36 @@ h1 {
   margin-bottom: 20px;
 }
 
+.hidden {
+  display: none;
+}
+
+/* Pantalla inicial */
+#start-screen {
+  margin-top: 10%;
+}
+
+#start-screen p {
+  font-size: 18px;
+  max-width: 600px;
+  margin: 20px auto;
+}
+
+#start-btn {
+  padding: 12px 20px;
+  font-size: 18px;
+  border: none;
+  border-radius: 8px;
+  background: #28a745;
+  color: white;
+  cursor: pointer;
+}
+
+#start-btn:hover {
+  background: #1e7e34;
+}
+
+/* Contenedor de cartas */
 #game-container {
   display: flex;
   justify-content: center;
@@ -39,6 +69,7 @@ h1 {
   transform: scale(1.1);
 }
 
+/* Botones del juego */
 #controls {
   margin: 15px 0;
 }
