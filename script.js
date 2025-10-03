@@ -1,8 +1,6 @@
 // =======================
 // CONFIGURACIÓN DEL JUEGO
 // =======================
-
-// Cartas del nuevo proyecto (8 cartas + trasera)
 const cards = [
   "CartasSimulacros-01.png",
   "CartasSimulacros-02.png",
@@ -14,7 +12,6 @@ const cards = [
   "CartasSimulacros-08.png"
 ];
 
-// Orden correcto de las cartas (ajústalo a tu secuencia real)
 const correctOrder = [
   "CartasSimulacros-01.png",
   "CartasSimulacros-02.png",
@@ -26,15 +23,16 @@ const correctOrder = [
   "CartasSimulacros-08.png"
 ];
 
-const cardBack = "CartasPFE-08.png"; // parte trasera
-const cardFolder = "Cartas2"; // carpeta de imágenes
+const cardBack = "CartasPFE-08.png"; 
+const cardFolder = "Cartas2"; 
 
 // =======================
-// VARIABLES GLOBALES
+// VARIABLES
 // =======================
 let startTime;
 let timerInterval;
 let score = 0;
+let draggedCard = null;
 
 // =======================
 // INICIAR JUEGO
@@ -43,7 +41,6 @@ function initGame() {
   const container = document.getElementById("cards-container");
   container.innerHTML = "";
 
-  // Mezclar cartas
   const shuffled = [...cards].sort(() => Math.random() - 0.5);
 
   shuffled.forEach((card, index) => {
@@ -54,14 +51,13 @@ function initGame() {
     div.dataset.front = card;
     div.dataset.index = index;
 
-    // Volteo al arrastrar
     div.addEventListener("dragstart", dragStart);
     div.addEventListener("dragover", dragOver);
     div.addEventListener("drop", drop);
 
     container.appendChild(div);
 
-    // Mostrar frente de carta tras 1s
+    // Mostrar frente después de 1s
     setTimeout(() => {
       div.style.backgroundImage = `url(${cardFolder}/${card})`;
     }, 1000);
@@ -74,8 +70,6 @@ function initGame() {
 // =======================
 // DRAG & DROP
 // =======================
-let draggedCard = null;
-
 function dragStart(e) {
   draggedCard = this;
   this.classList.add("dragging");
@@ -135,12 +129,18 @@ function resetTimer() {
 }
 
 // =======================
-// BOTONES
+// CONTROL PANTALLAS + MÚSICA
 // =======================
+document.getElementById("start-btn").addEventListener("click", () => {
+  document.getElementById("start-screen").classList.add("hidden");
+  document.getElementById("game-screen").classList.remove("hidden");
+
+  const music = document.getElementById("bg-music");
+  music.volume = 0.3; // volumen bajito
+  music.play();
+
+  initGame();
+});
+
 document.getElementById("validate-btn").addEventListener("click", validateOrder);
 document.getElementById("reset-btn").addEventListener("click", initGame);
-
-// =======================
-// INICIAR
-// =======================
-window.onload = initGame;
