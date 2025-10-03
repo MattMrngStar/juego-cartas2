@@ -34,7 +34,9 @@ document.addEventListener("DOMContentLoaded", () => {
     startScreen.classList.add("hidden");
     gameArea.classList.remove("hidden");
     startGame();
-    bgMusic.play();
+    bgMusic.play().catch(() => {
+      console.log("Autoplay bloqueado, iniciar manualmente la música");
+    });
   });
 
   function startGame() {
@@ -49,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Mezclar cartas
     const shuffled = [...correctOrder].sort(() => Math.random() - 0.5);
 
-    shuffled.forEach((img, idx) => {
+    shuffled.forEach(img => {
       const card = document.createElement("div");
       card.className = "card";
       card.draggable = true;
@@ -57,11 +59,11 @@ document.addEventListener("DOMContentLoaded", () => {
       card.dataset.value = img;
 
       // arrastrar
-      card.addEventListener("dragstart", e => {
+      card.addEventListener("dragstart", () => {
         draggedCard = card;
         setTimeout(() => card.style.display = "none", 0);
       });
-      card.addEventListener("dragend", e => {
+      card.addEventListener("dragend", () => {
         draggedCard.style.display = "block";
         draggedCard = null;
       });
@@ -72,9 +74,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // slots
     document.querySelectorAll(".slot").forEach(slot => {
       slot.addEventListener("dragover", e => e.preventDefault());
-      slot.addEventListener("drop", e => {
+      slot.addEventListener("drop", () => {
         if (draggedCard) {
-          slot.innerHTML = `<span class="slot-number">${slot.dataset.slot*1+1}</span>`;
+          slot.innerHTML = `<span class="slot-number">${parseInt(slot.dataset.slot)+1}</span>`;
           slot.appendChild(draggedCard);
         }
       });
@@ -125,4 +127,3 @@ document.addEventListener("DOMContentLoaded", () => {
     resultTitle.textContent = won ? "¡Correcto! 🎉" : "Tiempo agotado ⏳";
   }
 });
-
