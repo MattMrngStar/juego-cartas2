@@ -40,55 +40,60 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function startGame() {
-    score = 0;
-    timeLeft = 300;
-    scoreEl.textContent = score;
+  score = 0;
+  timeLeft = 300;
+  scoreEl.textContent = score;
+  timerEl.textContent = timeLeft;
+
+  // limpiar slots
+  document.querySelectorAll(".slot").forEach((slot, i) => {
+    slot.innerHTML = `<span class="slot-number">${i+1}</span>`;
+  });
+
+  // Mezclar cartas
+  const shuffled = [...correctOrder].sort(() => Math.random() - 0.5);
+
+  // Insertar cada carta dentro de un slot
+  shuffled.forEach((img, idx) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.draggable = true;
+    card.style.backgroundImage = `url('Cartas2/${img}')`;
+    card.dataset.value = img;
+
+    // arrastrar
+    card.addEventListener("dragstart", () => {
+      draggedCard = card;
+      setTimeout(() => card.style.display = "none", 0);
+    });
+    card.addEventListener("dragend", () => {
+      draggedCard.style.display = "block";
+      draggedCard = null;
+    });
+
+    const slot = document.querySelectorAll(".slot")[idx];
+    slot.appendChild(card);
+  });
+
+  // slots
+  document.querySelectorAll(".slot").forEach(slot => {
+    slot.addEventListener("dragover", e => e.preventDefault());
+    slot.addEventListener("drop", () => {
+      if (draggedCard) {
+        slot.innerHTML = `<span class="slot-number">${parseInt(slot.dataset.slot)+1}</span>`;
+        slot.appendChild(draggedCard);
+      }
+    });
+  });
+
+  clearInterval(timer);
+  timer = setInterval(() => {
+    timeLeft--;
     timerEl.textContent = timeLeft;
+    if (timeLeft <= 0) endGame(false);
+  }, 1000);
+}
 
-    const board = document.getElementById("board");
-    board.querySelectorAll(".card").forEach(c => c.remove());
-
-    // Mezclar cartas
-    const shuffled = [...correctOrder].sort(() => Math.random() - 0.5);
-
-    shuffled.forEach(img => {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.draggable = true;
-      card.style.backgroundImage = `url('Cartas2/${img}')`;
-      card.dataset.value = img;
-
-      // arrastrar
-      card.addEventListener("dragstart", () => {
-        draggedCard = card;
-        setTimeout(() => card.style.display = "none", 0);
-      });
-      card.addEventListener("dragend", () => {
-        draggedCard.style.display = "block";
-        draggedCard = null;
-      });
-
-      board.appendChild(card);
-    });
-
-    // slots
-    document.querySelectorAll(".slot").forEach(slot => {
-      slot.addEventListener("dragover", e => e.preventDefault());
-      slot.addEventListener("drop", () => {
-        if (draggedCard) {
-          slot.innerHTML = `<span class="slot-number">${parseInt(slot.dataset.slot)+1}</span>`;
-          slot.appendChild(draggedCard);
-        }
-      });
-    });
-
-    clearInterval(timer);
-    timer = setInterval(() => {
-      timeLeft--;
-      timerEl.textContent = timeLeft;
-      if (timeLeft <= 0) endGame(false);
-    }, 1000);
-  }
 
   // Validar orden
   btnCheck.addEventListener("click", () => {
